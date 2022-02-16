@@ -1,0 +1,43 @@
+import webbrowser
+from bs4 import BeautifulSoup
+import pandas as pd
+from selenium import webdriver
+
+driver = webdriver.Chrome('C:\my\chromedriver/chromedriver.exe')
+url = 'http://www.melon.com/chart/index.htm'
+driver.get(url)     
+
+html = driver.page_source
+soup = BeautifulSoup(html, 'html.parser') 
+
+titles = soup.select('div.rank01 > span > a')
+singers= soup.select('span.checkEllipsis')
+
+singer_list=[]
+for singer in singers:
+    singer_list.append(singer.text)
+    
+title_list=[]
+
+for title in titles:
+    title_list.append(title.get('title').strip('재생'))
+
+rank_list=[]
+for i in range(1,101):
+    rank_list.append(i)
+
+ser_list=[]
+
+for i in range(100):
+    ser_list.append('MELON')
+
+df=pd.DataFrame(
+    {'서비스' : ser_list,
+     '순위' : rank_list,
+     '제목' : title_list,
+     '가수' : singer_list
+    } 
+)
+
+
+df.to_excel('C:\melon.xlsx')
